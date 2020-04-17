@@ -1,7 +1,9 @@
+import datetime
+
 import requests
-from flask import Flask, redirect, render_template
+from flask import Flask, redirect, render_template, request
 from flask_login import login_required, logout_user, login_user, LoginManager, current_user
-from flask_restful import Api
+from flask_restful import Api, abort
 import user_resources
 import hw_resources
 import forms
@@ -29,6 +31,26 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 
+def sorted_hws(hws, key='completion_date'):
+    def func(hw):
+        if key == 'completion_date':
+            if hw.completion_date is None:
+                return datetime.date(0, 0, 0)
+            return hw.completion_date
+        if key == 'subject':
+            if hw.subject is None:
+                return ''
+            return hw.subject
+
+    # if key == 'completion_date':
+    #     hws = sorted(hws, key=lambda hw: hw.completion_date)
+    # elif key == 'subject':
+    #     hws = sorted(hws, key=lambda hw: hw.subject)
+    # print(*res, sep='\n')
+    hws = sorted(hws, key=func)
+    return hws
+
+
 @login_manager.user_loader
 def load_user(user_id):
     session = db_session.create_session()
@@ -40,7 +62,11 @@ def index():
     if not current_user.is_authenticated:
         return redirect('/login')
     session = db_session.create_session()
-    hws = session.query(Homework).filter(Homework.clas_id == current_user.clas_id).all()
+    if current_user.status == 'admin':
+        hws = session.query(Homework).all()
+    else:
+        hws = session.query(Homework).filter(Homework.clas_id == current_user.clas_id).all()
+    print(*sorted_hws(hws, 'subject'), sep='\n')
     return render_template('index.html', hws=hws)
 
 
@@ -120,6 +146,77 @@ def add_hw():
         session.commit()
         return redirect('/')
     return render_template('add_task.html', form=form)
+
+
+@app.route('/add_hw/<int:hw_id>', methods=['GET', 'POST'])
+@login_required
+def edit_hw(hw_id):
+    form = forms.AddTaskForm()
+    if request.method == 'GET':
+        session = db_session.create_session()
+        hw = session.query(Homework).get(hw_id)
+        if hw:
+            form.subject.data = hw.subject
+            form.completion_date.data = hw.completion_date
+            form.content.data = hw.content
+        else:
+            abort(404)
+
+    if form.validate_on_submit():
+        session = db_session.create_session()
+        hw = session.query(Homework).get(hw_id)
+        hw.subject = form.subject.data
+        hw.content = form.content.data
+        hw.completion_date = form.completion_date.data
+        hw.clas_id = current_user.clas_id
+        hw.user_id = current_user.id
+        # добавление файла
+        session.commit()
+        return redirect('/')
+    return render_template('add_task.html', form=form)
+
+@app.route('/delete_hw/<int:hw_id>')
+@login_required
+def delete_hw(hw_id):
+    session = db_session.create_session()
+    hw = session.query(Homework).get(hw_id)
+    if not hw:
+        abort(404)
+    else:
+        session.delete(hw)
+        session.commit()
+        return redirect('/')
+
+
+@app.route('/add_answer/<int:hw_id>', methods=["GET", "POST"])
+@login_required
+def add_ans(hw_id):
+    form = forms.AddAnswerForm()
+    session = db_session.create_session()
+    hw = session.query(Homework).get(hw_id)
+    if not hw:
+        abort(404)
+    if form.validate_on_submit():
+        hw.answer = form.answer.data
+        session.commit()
+        return redirect('/')
+    return render_template('add_answer.html', form=form, hw=hw)
+
+
+@app.route('/admin/add_clas/<school>/<name>')
+@login_required
+def add_clas(school, name):
+    if current_user.status == "admin":
+        session = db_session.create_session()
+        if not session.query(Clas).filter(Clas.school == school, Clas.name == name).first():
+            clas = Clas()
+            clas.school = school
+            clas.name = name
+            session.add(clas)
+            session.commit()
+        else:
+            pass
+    return redirect('/')
 
 
 @app.route('/file', methods=['GET', 'POST'])
