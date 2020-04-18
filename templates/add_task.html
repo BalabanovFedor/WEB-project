@@ -30,7 +30,8 @@
     {% endfor %}
 
     </p>
-    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+    <p>{{ form.submit(type="submit", class="btn btn-primary") }}
+        <a href="/" class="btn btn-danger">Cancel</a></p>
     <div>{{ message }}</div>
 </form>
 {%endblock%}

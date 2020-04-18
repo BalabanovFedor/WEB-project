@@ -70,7 +70,6 @@ def index():
         hws = session.query(Homework).filter(Homework.clas_id == current_user.clas_id).all()
     form = forms.Filter()
     if form.submit():
-        print(form.sort_by.data)
         hws = sorted_hws(hws, key=form.sort_by.data)
     # print(*sorted_hws(hws, 'subject'), sep='\n')
     return render_template('index.html', hws=hws, form=form)
