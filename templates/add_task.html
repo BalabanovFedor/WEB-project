@@ -23,7 +23,7 @@
     <p>
         {{ form.completion_date.label }}<br>
         {{ form.completion_date(class="form-control-date", type="date") }}<br>
-        {% for error in form.subject.errors %}
+        {% for error in form.completion_date.errors %}
     <div class="alert alert-danger" role="alert">
         {{ error }}
     </div>

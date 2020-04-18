@@ -4,6 +4,11 @@
 {% if current_user.is_authenticated %}
 <a href="add_hw" class="btn btn-secondary">Add Task</a><br>
 <h1>Tasks</h1>
+<form action="" method="post">
+    {{form.sort_by.label}}: {{form.sort_by(class="form-control-submit")}} <br>
+    {{form.submit(type="submit", class="btn btn-secondary")}}
+</form>
+
 {%for hw in hws%}
 <p>
     {{hw.subject}} {{hw.content}} {{hw.completion_date}} {{hw.answer}}<br>

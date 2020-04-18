@@ -47,6 +47,8 @@ def sorted_hws(hws, key='completion_date'):
     # elif key == 'subject':
     #     hws = sorted(hws, key=lambda hw: hw.subject)
     # print(*res, sep='\n')
+    if key not in ['subject', 'completion_date']:
+        key = 'completion_date'
     hws = sorted(hws, key=func)
     return hws
 
@@ -57,7 +59,7 @@ def load_user(user_id):
     return session.query(User).get(user_id)
 
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
     if not current_user.is_authenticated:
         return redirect('/login')
@@ -66,8 +68,12 @@ def index():
         hws = session.query(Homework).all()
     else:
         hws = session.query(Homework).filter(Homework.clas_id == current_user.clas_id).all()
-    print(*sorted_hws(hws, 'subject'), sep='\n')
-    return render_template('index.html', hws=hws)
+    form = forms.Filter()
+    if form.submit():
+        print(form.sort_by.data)
+        hws = sorted_hws(hws, key=form.sort_by.data)
+    # print(*sorted_hws(hws, 'subject'), sep='\n')
+    return render_template('index.html', hws=hws, form=form)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -174,6 +180,7 @@ def edit_hw(hw_id):
         session.commit()
         return redirect('/')
     return render_template('add_task.html', form=form)
+
 
 @app.route('/delete_hw/<int:hw_id>')
 @login_required

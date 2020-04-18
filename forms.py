@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, DateField, FileField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, DateField, FileField, SelectField
 from wtforms.fields.html5 import EmailField
 from wtforms.validators import DataRequired
 
@@ -33,3 +33,8 @@ class AddAnswerForm(FlaskForm):
     answer = StringField('answer', validators=[DataRequired()])
     file = FileField('file')
     submit = SubmitField('Add')
+
+
+class Filter(FlaskForm):
+    sort_by = SelectField('sort', choices=[('completion_date', 'completion date'), ('subject', 'subject')])
+    submit = SubmitField('filter')

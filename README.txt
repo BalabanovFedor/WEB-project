@@ -1,6 +1,6 @@
 web:
     -- register, login, logout
-    -- display unsorted tasks
+    -- display sorted tasks
     -- edit, delete, answer
     -- add task
 
