@@ -35,7 +35,7 @@ def sorted_hws(hws, key='completion_date'):
     def func(hw):
         if key == 'completion_date':
             if hw.completion_date is None:
-                return datetime.date(0, 0, 0)
+                return datetime.date(1, 1, 1)
             return hw.completion_date
         if key == 'subject':
             if hw.subject is None:
@@ -49,8 +49,18 @@ def sorted_hws(hws, key='completion_date'):
     # print(*res, sep='\n')
     if key not in ['subject', 'completion_date']:
         key = 'completion_date'
-    hws = sorted(hws, key=func)
+    hws = sorted(hws, key=func, reverse=True)
     return hws
+
+
+def delete_old_hw(hws, session, timedelta=datetime.timedelta(7)):
+    del_date = datetime.datetime.now() - timedelta
+    del_date = del_date.date()
+    # session = db_session.create_session()
+    for hw in hws:
+        if hw.completion_date and hw.completion_date < del_date:
+            session.delete(hw)
+            session.commit()
 
 
 @login_manager.user_loader
@@ -68,6 +78,7 @@ def index():
         hws = session.query(Homework).all()
     else:
         hws = session.query(Homework).filter(Homework.clas_id == current_user.clas_id).all()
+    delete_old_hw(hws, session, datetime.timedelta(14))
     form = forms.Filter()
     if form.submit():
         hws = sorted_hws(hws, key=form.sort_by.data)
