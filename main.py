@@ -1,11 +1,9 @@
 import datetime
 
-import requests
 from flask import Flask, redirect, render_template, request
 from flask_login import login_required, logout_user, login_user, LoginManager, current_user
 from flask_restful import Api, abort
-import user_resources
-import hw_resources
+from api import hw_resources, user_resources, clas_resources
 import forms
 
 from data import db_session
@@ -26,6 +24,9 @@ api.add_resource(user_resources.UserResource, '/api/user/<int:user_id>')
 api.add_resource(user_resources.UserListResource, '/api/user')
 api.add_resource(hw_resources.HomeworkResource, '/api/hw/<int:hw_id>')
 api.add_resource(hw_resources.HomeworkListResource, '/api/hw')
+api.add_resource(clas_resources.ClasResource, '/api/clas/<int:clas_id>')
+api.add_resource(clas_resources.ClasListResource, '/api/clas')
+
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -42,6 +43,11 @@ def sorted_hws(hws, key='completion_date'):
                 return ''
             return hw.subject
 
+    def rev():
+        if key == 'completion_date':
+            return True
+        return False
+
     # if key == 'completion_date':
     #     hws = sorted(hws, key=lambda hw: hw.completion_date)
     # elif key == 'subject':
@@ -49,7 +55,7 @@ def sorted_hws(hws, key='completion_date'):
     # print(*res, sep='\n')
     if key not in ['subject', 'completion_date']:
         key = 'completion_date'
-    hws = sorted(hws, key=func, reverse=True)
+    hws = sorted(hws, key=func, reverse=rev())
     return hws
 
 
@@ -83,7 +89,7 @@ def index():
     if form.submit():
         hws = sorted_hws(hws, key=form.sort_by.data)
     # print(*sorted_hws(hws, 'subject'), sep='\n')
-    return render_template('index.html', hws=hws, form=form)
+    return render_template('index.html', title="Главная", hws=hws, form=form)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -111,10 +117,11 @@ def reqister():
                                    form=form,
                                    message="Школа отсутствует в базе")
         clas_id = clas_id.id
-        user = User(name=form.name.data,
-                    email=form.email.data,
-                    clas_id=clas_id,
-                    status="student")
+        user = User()
+        user.name = form.name.data,
+        user.email = form.email.data,
+        user.clas_id = clas_id,
+        user.status = "student"
         user.set_password(form.password.data)
         session.add(user)
         session.commit()
@@ -161,7 +168,7 @@ def add_hw():
         session.add(hw)
         session.commit()
         return redirect('/')
-    return render_template('add_task.html', form=form)
+    return render_template('add_task.html', form=form, title="Добавление")
 
 
 @app.route('/add_hw/<int:hw_id>', methods=['GET', 'POST'])
@@ -189,7 +196,7 @@ def edit_hw(hw_id):
         # добавление файла
         session.commit()
         return redirect('/')
-    return render_template('add_task.html', form=form)
+    return render_template('add_task.html', form=form, title="Редактирование")
 
 
 @app.route('/delete_hw/<int:hw_id>')
@@ -217,7 +224,7 @@ def add_ans(hw_id):
         hw.answer = form.answer.data
         session.commit()
         return redirect('/')
-    return render_template('add_answer.html', form=form, hw=hw)
+    return render_template('add_answer.html', form=form, hw=hw, title="Добавление ответа")
 
 
 @app.route('/admin/add_clas/<school>/<name>')
@@ -234,6 +241,11 @@ def add_clas(school, name):
         else:
             pass
     return redirect('/')
+
+
+@app.route('/help')
+def help():
+    return render_template('help.html', title="Помощь")
 
 
 @app.route('/file', methods=['GET', 'POST'])

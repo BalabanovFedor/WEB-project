@@ -1,5 +1,13 @@
 {%extends "base.html"%}
 
+{%block head%}
+<style>
+    table {border:1px solid black;border-collapse:collapse;}
+    td {border:1px solid black;}
+
+</style>
+{%endblock%}
+
 {%block content%}
 {% if current_user.is_authenticated %}
 <a href="add_hw" class="btn btn-secondary">Add Task</a><br>
@@ -10,12 +18,29 @@
 </form>
 
 {%for hw in hws%}
-<p>
-    {{hw.subject}} {{hw.content}} {{hw.completion_date}} {{hw.answer}}<br>
-    <a href="add_hw/{{hw.id}}" class="btn btn-primary">Edit</a>
-    <a href="add_answer/{{hw.id}}" class="btn btn-success">Add answer</a>
-    <a href="delete_hw/{{hw.id}}" class="btn btn-danger">Delete</a>
-</p>
+<table>
+    <thead>
+    <tr>
+        <td>subject</td>
+        <td>content</td>
+        <td>completion date</td>
+        <td>answer</td>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>{{hw.subject}}</td>
+        <td>{{hw.content}}</td>
+        <td>{{hw.completion_date}}</td>
+        <td>{{hw.answer}}</td>
+    </tr>
+    </tbody>
+</table>
+<!--{{hw.subject}} {{hw.content}} {{hw.completion_date}} {{hw.answer}}<br>-->
+<a href="add_hw/{{hw.id}}" class="btn btn-primary">Edit</a>
+<a href="add_answer/{{hw.id}}" class="btn btn-success">Add answer</a>
+<a href="delete_hw/{{hw.id}}" class="btn btn-danger">Delete</a>
+
 {%endfor%}
 {% else %}
 <a href="login" class="btn btn-primary">Sign in</a>
