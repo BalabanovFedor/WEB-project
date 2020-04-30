@@ -14,7 +14,8 @@ def start(update, context):
 
 def help(update, context):
     t = """/init <school> <class> -- для начала работы укажите школу и класс (можно изменить в любой момент)
-    /get <subject> <completion_date:YYYY-MM-DD> -- выведет задания указанных предметов и чисел (параметры необязательные)
+    /view_class -- покажет доступные классы
+    /get <subject> <completion_date:YYYY-MM-DD> -- выведет задания указанных предметов и чисел (если параметр не нужен поставьте ".")
     """
     update.message.reply_text(t)
 
@@ -55,7 +56,40 @@ def init(update, context):
 
 # вернет задания, параметры: предмет, число
 def get(update, context):
-    update.message.reply_text(context.user_data['clas_id'])
+    if not context.user_data.get('clas_id', None):
+        update.message.reply_text('Вы не указали школу и класс. Укажите его посредством команды /init')
+        return
+    clas_id = context.user_data['clas_id']
+
+    if len(context.args) != 2:
+        update.message.reply_text('Укажите 2 параметра: предмет и число, если они не требуются, поставьте "."')
+    subj, comp_date = context.args
+    if subj == '.':
+        subj = None
+    if comp_date == '.':
+        comp_date = None
+
+    hws = requests.get(server + '/api/hw')
+    if not hws or not hws.json()['tasks']:
+        update.message.reply_text('Сервер недоступен')
+        return
+
+    hws = list(filter(lambda i: i['clas_id'] == int(clas_id), hws.json()['tasks']))
+    if subj:
+        hws = list(filter(lambda i: i['subject'] == subj, hws))
+    if comp_date:
+        hws = list(filter(lambda i: i['completion_date'] == comp_date, hws))
+
+    text = ''
+    if len(hws) == 0:
+        update.message.reply_text("Нет никаких заданий")
+
+    for hw in hws:
+        text += f"""Предмет: {hw['subject']}
+        Задание: {hw['content']}
+        Дата сдачи: {hw['completion_date']}
+        ----------"""
+    update.message.reply_text(text)
 
 
 def msg_handler(update, context):

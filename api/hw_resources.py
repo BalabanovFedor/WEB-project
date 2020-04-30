@@ -18,7 +18,7 @@ def abort_if_hw_not_found(user_id):
     session = db_session.create_session()
     user = session.query(Homework).get(user_id)
     if not user:
-        abort(404, message=f"News {user_id} not found")
+        abort(404, message=f"Hw {user_id} not found")
 
 
 class HomeworkResource(Resource):
