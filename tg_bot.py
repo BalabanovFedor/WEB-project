@@ -6,16 +6,17 @@ import requests
 from main import server
 
 TOKEN = "901380312:AAG0I0BeWrldYTUXQc0JWU2oZU7rtgA-F7I"
-
+keyboard = [['/help', '/init'], ['/get']]
+menu_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=False)
 
 def start(update, context):
-    update.message.reply_text('начнем')
+    update.message.reply_text('начнем', reply_markup=menu_markup)
 
 
 def help(update, context):
     t = """/init <school> <class> -- для начала работы укажите школу и класс (можно изменить в любой момент)
     /view_class -- покажет доступные классы
-    /get <subject> <completion_date:YYYY-MM-DD> -- выведет задания указанных предметов и чисел (если параметр не нужен поставьте ".")
+    /get <subject> <completion_date:YYYY-MM-DD> -- выведет задания указанных предметов и чисел
     """
     update.message.reply_text(t)
 
@@ -61,8 +62,12 @@ def get(update, context):
         return
     clas_id = context.user_data['clas_id']
 
+    if len(context.args) == 0:
+        context.args = ['.', '.']
+
     if len(context.args) != 2:
         update.message.reply_text('Укажите 2 параметра: предмет и число, если они не требуются, поставьте "."')
+        return
     subj, comp_date = context.args
     if subj == '.':
         subj = None
@@ -74,7 +79,9 @@ def get(update, context):
         update.message.reply_text('Сервер недоступен')
         return
 
-    hws = list(filter(lambda i: i['clas_id'] == int(clas_id), hws.json()['tasks']))
+    hws = hws.json()['tasks']
+    # print(hws)
+    hws = list(filter(lambda i: i['clas_id'] == str(clas_id), hws))
     if subj:
         hws = list(filter(lambda i: i['subject'] == subj, hws))
     if comp_date:
@@ -85,10 +92,11 @@ def get(update, context):
         update.message.reply_text("Нет никаких заданий")
 
     for hw in hws:
-        text += f"""Предмет: {hw['subject']}
-        Задание: {hw['content']}
-        Дата сдачи: {hw['completion_date']}
-        ----------"""
+        text += f"""
+Предмет: {hw['subject']}
+Задание: {hw['content']}
+Дата сдачи: {hw['completion_date']}
+----------"""
     update.message.reply_text(text)
 
 
