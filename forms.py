@@ -4,13 +4,19 @@ from wtforms.fields.html5 import EmailField
 from wtforms.validators import DataRequired
 
 
+class UnsafeSelectField(SelectField):
+    def pre_validate(self, form):
+        return True
+
+
 class RegisterForm(FlaskForm):
     name = StringField('name', validators=[DataRequired()])
     email = EmailField('email', validators=[DataRequired()])
     password = PasswordField('password', validators=[DataRequired()])
     password_again = PasswordField('password', validators=[DataRequired()])
-    school = StringField('school', validators=[DataRequired()])
-    clas = StringField('class', validators=[DataRequired()])
+    # school = StringField('school', validators=[DataRequired()])
+    # clas = StringField('class', validators=[DataRequired()])
+    school_clas = UnsafeSelectField("school, clas")
     submit = SubmitField('Register')
 
 

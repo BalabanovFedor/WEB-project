@@ -3,6 +3,7 @@ import datetime
 from flask import Flask, redirect, render_template, request
 from flask_login import login_required, logout_user, login_user, LoginManager, current_user
 from flask_restful import Api, abort
+
 from api import hw_resources, user_resources, clas_resources
 import forms
 
@@ -26,7 +27,6 @@ api.add_resource(hw_resources.HomeworkResource, '/api/hw/<int:hw_id>')
 api.add_resource(hw_resources.HomeworkListResource, '/api/hw')
 api.add_resource(clas_resources.ClasResource, '/api/clas/<int:clas_id>')
 api.add_resource(clas_resources.ClasListResource, '/api/clas')
-
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -95,6 +95,23 @@ def index():
 @app.route('/register', methods=['GET', 'POST'])
 def reqister():
     form = forms.RegisterForm()
+
+    session = db_session.create_session()
+    clases = session.query(Clas).all()
+    if clases:
+        data = [("None", "Выбрать")]
+        for clas in clases:
+            s, c = clas.school, clas.name
+            data.append((s + "\t" + c, f"Школа: {s}, класс: {c}"))
+        form.school_clas.choices = []
+        form.school_clas.choices = data
+
+        # years = [(str(y), y) for y in reversed(range(1950, 2013))]
+        # years.insert(0, ('', 'year'))
+        # year = wt.SelectField(choices=years)
+    else:
+        form.school_clas.choices = [("None", 'База пуста(')]
+
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
             return render_template('register.html', title='Регистрация',
@@ -111,22 +128,44 @@ def reqister():
         #     server + f'/api/user?name={form.name.data}&email={form.email.data}&password={form.password.data}&school={form.school.data}&clas={form.clas.data}')
         # print(ans)
 
-        clas_id = session.query(Clas).filter(Clas.school == form.school.data, Clas.name == form.clas.data).first()
-        if clas_id is None:
+        # clas_id = session.query(Clas).filter(Clas.school == form.school.data, Clas.name == form.clas.data).first()
+        # if clas_id is None:
+        #     return render_template('register.html', title='Регистрация',
+        #                            form=form,
+        #                            message="Школа отсутствует в базе")
+        # clas_id = clas_id.id
+
+        clas_id = None
+        if form.school_clas.data is None:
             return render_template('register.html', title='Регистрация',
                                    form=form,
                                    message="Школа отсутствует в базе")
-        clas_id = clas_id.id
+
+        if form.school_clas.data == "None":
+            return render_template('register.html', title='Регистрация',
+                                   form=form,
+                                   message="Выберите школу")
+
+        if form.school_clas.data:
+            s, c = form.school_clas.data.split('\t')
+            cl = session.query(Clas).filter(Clas.school == s, Clas.name == c).first()
+            if not cl:
+                return render_template('register.html', title='Регистрация',
+                                       form=form,
+                                       message="Школа отсутствует в базе(Беды)")
+            clas_id = cl.id
+
         user = User()
-        user.name = form.name.data,
-        user.email = form.email.data,
-        user.clas_id = clas_id,
+        user.name = form.name.data
+        user.email = form.email.data
+        user.clas_id = clas_id
         user.status = "student"
         user.set_password(form.password.data)
         session.add(user)
         session.commit()
 
         return redirect('/login')
+
     return render_template('register.html', title='Регистрация', form=form)
 
 
@@ -247,6 +286,9 @@ def add_clas(school, name):
 def help():
     return render_template('help.html', title="Помощь")
 
+@app.route('/help/api')
+def help_api():
+    return render_template('help_api.html', title="API")
 
 @app.route('/file', methods=['GET', 'POST'])
 def file():

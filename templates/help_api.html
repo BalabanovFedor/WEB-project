@@ -1,0 +1,109 @@
+{%extends "base.html"%}
+{%block head%}
+<style>
+    table{border:1px solid black;border-collapse:collapse;}
+    td{border:1px solid black;}
+
+</style>
+{%endblock%}
+{%block content%}
+
+<h1>Документация к API <a href="/">системы</a> мониторинга домашних заданий</h1>
+
+<table>
+    <thead>
+    <tr>
+        <th>url</th>
+        <th>Определение</th>
+        <th>Ответ в формате json</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <th>GET запросы</th>
+    </tr>
+    <tr>
+        <td>/api/user</td>
+        <td>Список пользователей</td>
+        <td>{'users':[<br>
+            {'id':3, 'name':"Vasya", 'clas_id':4, 'email':'vasYa227@ku.com"},<br>
+            {'id':4, 'name':"kolya", 'clas_id':2, 'email':'Kolya335@ururu.com"}<br>
+            ]}
+        </td>
+    </tr>
+    <tr>
+        <td>/api/user/user_id</td>
+        <td>Данные пользователя по id</td>
+        <td>{'user':<br>
+            {'id':3, 'name':"Vasya", 'clas_id':4, 'email':'vasYa227@ku.com"}}
+        </td>
+    </tr>
+    <tr>
+        <td>/api/hw</td>
+        <td>Список заданий</td>
+        <td>{'tasks':[<br>
+            {'id':2, 'subject':'math', 'clas_id':44, 'content':'Посчитайте...', 'created_date':'2020-12-21',
+            'completion_date':'2020-12-31', 'answer':'4', 'data':None,
+            'user_id':4},<br>
+            {'id':4, 'subject':'phys', 'clas_id':4, 'content':'Решите...', 'created_date':'2020-12-21',
+            'completion_date':'2020-12-31', 'answer':'10Па', 'data':None,
+            'user_id':3}<br>
+            ]}
+        </td>
+    </tr>
+    <tr>
+        <td>/api/hw/id</td>
+        <td>Данные задания по id</td>
+        <td>{'task':<br>
+            {'id':2, 'subject':'math', 'clas_id':44, 'content':'Посчитайте...', 'created_date':'2020-12-21',
+            'completion_date':'2020-12-31', 'answer':'4', 'data':None,
+            'user_id':4}}
+        </td>
+    </tr>
+    <tr>
+        <td>/api/clas</td>
+        <td>Список классов</td>
+        <td>{'clas':[<br>
+            {'id':33, 'school':'Лицей 82', 'name':'7В'},<br>
+            {'id':34, 'school':'135 гимназия', 'name':'11A}<br>
+            ]}
+        </td>
+    </tr>
+    <tr>
+        <td>/api/clas/id</td>
+        <td>Данные класса по id</td>
+        <td>{'clas':<br>
+            {'id':34, 'school':'135 гимназия', 'name':'11A}<br>
+            }
+        </td>
+    </tr>
+    <tr>
+        <th>POST запросы</th>
+    </tr>
+    <tr>
+        <th>url</th>
+        <th>Определение</th>
+        <th>Аргументы (*-обязательные)</th>
+    </tr>
+    <tr>
+        <td>/api/user</td>
+        <td>Добавление пользователя</td>
+        <td>*name, *email, *school, *clas, password</td>
+    </tr>
+    <tr>
+        <td>/api/hw</td>
+        <td>Добавление задания</td>
+        <td>*subject, *content, *completion_date, *user_id, answer, data</td>
+    </tr>
+    <tr>
+        <td>/api/clas</td>
+        <td>Добавление класса</td>
+        <td>*name, *school</td>
+    </tr>
+
+    </tbody>
+
+</table>
+
+
+{%endblock%}

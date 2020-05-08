@@ -41,25 +41,17 @@
             </p>
         {% endfor %}
     </p>
+
     <p>
-        {{ form.school.label }}<br>
-        {{ form.school(class="form-control") }}<br>
-        {% for error in form.school.errors %}
+        {{ form.school_clas.label }}<br>
+        {{ form.school_clas(class="form-control-submit") }}<br>
+        {% for error in form.school_clas.errors %}
             <p class="alert alert-danger" role="alert">
                 {{ error }}
             </p>
         {% endfor %}
     </p>
 
-    <p>
-        {{ form.clas.label }}<br>
-        {{ form.clas(class="form-control") }}<br>
-        {% for error in form.clas.errors %}
-            <p class="alert alert-danger" role="alert">
-                {{ error }}
-            </p>
-        {% endfor %}
-    </p>
     <p>{{ form.submit(type="submit", class="btn btn-primary") }}
     <a href="/" class="btn btn-danger">Sign in</a></p>
     {{message}}
