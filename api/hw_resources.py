@@ -5,6 +5,8 @@ from data.homework import Homework
 from data.user import User
 from datetime import date
 
+'''файл содержащий ресур задания для api'''
+
 parser = reqparse.RequestParser()
 parser.add_argument('subject', required=True)
 parser.add_argument('content', required=True)

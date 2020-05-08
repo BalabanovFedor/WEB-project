@@ -4,6 +4,8 @@ from data import db_session
 from data.user import User
 from data.clas import Clas
 
+'''файл содержащий ресур пользователя для api'''
+
 parser = reqparse.RequestParser()
 parser.add_argument('name', required=True)
 parser.add_argument('email', required=True)

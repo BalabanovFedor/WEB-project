@@ -3,6 +3,8 @@ from flask_restful import reqparse, abort, Api, Resource
 from data import db_session
 from data.clas import Clas
 
+'''файл содержащий ресур можеди класса для api'''
+
 parser = reqparse.RequestParser()
 parser.add_argument('name', required=True)
 parser.add_argument('school', required=True)

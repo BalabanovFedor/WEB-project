@@ -5,6 +5,7 @@ from sqlalchemy_serializer import SerializerMixin
 from .db_session import SqlAlchemyBase
 
 
+# модель задания в БД
 class Homework(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'homework'
 
@@ -18,7 +19,7 @@ class Homework(SqlAlchemyBase, SerializerMixin):
                                      default=datetime.datetime.now)
     completion_date = sqlalchemy.Column(sqlalchemy.Date, nullable=False)
     answer = sqlalchemy.Column(sqlalchemy.String)
-    data = sqlalchemy.Column(sqlalchemy.String)
+    # data = sqlalchemy.Column(sqlalchemy.String)
 
     user_id = sqlalchemy.Column(sqlalchemy.Integer,
                                 sqlalchemy.ForeignKey("users.id"))

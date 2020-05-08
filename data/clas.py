@@ -4,6 +4,7 @@ from sqlalchemy_serializer import SerializerMixin
 from .db_session import SqlAlchemyBase
 
 
+# модель класса в БД
 class Clas(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'clas'
 
@@ -12,4 +13,3 @@ class Clas(SqlAlchemyBase, SerializerMixin):
     school = sqlalchemy.Column(sqlalchemy.String)
     name = sqlalchemy.Column(sqlalchemy.String)
     # members = orm.relation("User", back_populates='clas')
-

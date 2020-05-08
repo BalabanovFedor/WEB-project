@@ -20,6 +20,7 @@ app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 
 server = 'http://127.0.0.1:5000'
 
+# подключение аpi
 api = Api(app)
 api.add_resource(user_resources.UserResource, '/api/user/<int:user_id>')
 api.add_resource(user_resources.UserListResource, '/api/user')
@@ -32,6 +33,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 
+# сортировка заданий
 def sorted_hws(hws, key='completion_date'):
     def func(hw):
         if key == 'completion_date':
@@ -59,6 +61,7 @@ def sorted_hws(hws, key='completion_date'):
     return hws
 
 
+# удалени устаревших заданий
 def delete_old_hw(hws, session, timedelta=datetime.timedelta(7)):
     del_date = datetime.datetime.now() - timedelta
     del_date = del_date.date()
@@ -75,6 +78,7 @@ def load_user(user_id):
     return session.query(User).get(user_id)
 
 
+# главная страница
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if not current_user.is_authenticated:
@@ -92,6 +96,7 @@ def index():
     return render_template('index.html', title="Главная", hws=hws, form=form)
 
 
+# страница регистрации
 @app.route('/register', methods=['GET', 'POST'])
 def reqister():
     form = forms.RegisterForm()
@@ -169,6 +174,7 @@ def reqister():
     return render_template('register.html', title='Регистрация', form=form)
 
 
+# страница входа в систему
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = forms.LoginForm()
@@ -191,6 +197,7 @@ def logout():
     return redirect("/login")
 
 
+# страница добавления задания
 @app.route('/add_hw', methods=['GET', 'POST'])
 @login_required
 def add_hw():
@@ -210,6 +217,7 @@ def add_hw():
     return render_template('add_task.html', form=form, title="Добавление")
 
 
+# страница редактирования задания
 @app.route('/add_hw/<int:hw_id>', methods=['GET', 'POST'])
 @login_required
 def edit_hw(hw_id):
@@ -238,6 +246,7 @@ def edit_hw(hw_id):
     return render_template('add_task.html', form=form, title="Редактирование")
 
 
+# страница удаления задания
 @app.route('/delete_hw/<int:hw_id>')
 @login_required
 def delete_hw(hw_id):
@@ -251,6 +260,7 @@ def delete_hw(hw_id):
         return redirect('/')
 
 
+# добавление ответа на задание
 @app.route('/add_answer/<int:hw_id>', methods=["GET", "POST"])
 @login_required
 def add_ans(hw_id):
@@ -266,6 +276,7 @@ def add_ans(hw_id):
     return render_template('add_answer.html', form=form, hw=hw, title="Добавление ответа")
 
 
+# запрос от админа на добавление класса
 @app.route('/admin/add_clas/<school>/<name>')
 @login_required
 def add_clas(school, name):
@@ -282,25 +293,29 @@ def add_clas(school, name):
     return redirect('/')
 
 
+# страница "помощь"
 @app.route('/help')
 def help():
     return render_template('help.html', title="Помощь")
 
+
+# страница документации к api
 @app.route('/help/api')
 def help_api():
     return render_template('help_api.html', title="API")
 
-@app.route('/file', methods=['GET', 'POST'])
-def file():
-    form = forms.AddAnswerForm()
-    if form.validate_on_submit():
-        print(1)
-        myFile = form.file.file.filename
-        form.fileName.file.save("data/files/" + myFile)
-        return redirect('/')
-    return render_template('file.html', form=form)
 
+# @app.route('/file', methods=['GET', 'POST'])
+# def file():
+#     form = forms.AddAnswerForm()
+#     if form.validate_on_submit():
+#         print(1)
+#         myFile = form.file.file.filename
+#         form.fileName.file.save("data/files/" + myFile)
+#         return redirect('/')
+#     return render_template('file.html', form=form)
 
+# запуск приложения
 def main():
     global session
 

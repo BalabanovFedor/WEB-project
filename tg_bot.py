@@ -9,10 +9,13 @@ TOKEN = "901380312:AAG0I0BeWrldYTUXQc0JWU2oZU7rtgA-F7I"
 keyboard = [['/help', '/init'], ['/get']]
 menu_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=False)
 
+
+# команда start
 def start(update, context):
     update.message.reply_text('начнем', reply_markup=menu_markup)
 
 
+# команда help
 def help(update, context):
     t = """/init <school> <class> -- для начала работы укажите школу и класс (можно изменить в любой момент)
     /view_class -- покажет доступные классы
@@ -21,6 +24,7 @@ def help(update, context):
     update.message.reply_text(t)
 
 
+# команда тоображения классов
 def view_class(update, context):
     clases = requests.get(server + "/api/clas").json()
     if clases['clas']:
@@ -33,6 +37,7 @@ def view_class(update, context):
         update.message.reply_text("Не могу найти класс или недоступен сервер")
 
 
+# команда подключения определенного класса
 def init(update, context):
     mtext = update.message.text.split()
     if len(mtext) < 3:
