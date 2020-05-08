@@ -5,7 +5,7 @@ from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
 import requests
 from main import server
 
-TOKEN = "901380312:AAG0I0BeWrldYTUXQc0JWU2oZU7rtgA-F7I"
+TOKEN = 'TOken'
 keyboard = [['/help', '/init'], ['/get']]
 menu_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=False)
 
